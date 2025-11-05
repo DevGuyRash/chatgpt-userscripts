@@ -1,0 +1,22 @@
+{
+  "filePath": ".spec-workflow/specs/modular-chatgpt-userscripts/design.md",
+  "currentVersion": 2,
+  "snapshots": [
+    {
+      "version": 1,
+      "filename": "snapshot-001.json",
+      "timestamp": "2025-11-05T04:08:26.520Z",
+      "trigger": "initial",
+      "approvalId": "approval_1762315706518_ivgxsufo6",
+      "approvalTitle": "Design: Modular ChatGPT Userscripts (Vite+ + TS)"
+    },
+    {
+      "version": 2,
+      "filename": "snapshot-002.json",
+      "timestamp": "2025-11-05T04:09:40.915Z",
+      "trigger": "approved",
+      "approvalId": "approval_1762315706518_ivgxsufo6",
+      "approvalTitle": "Design: Modular ChatGPT Userscripts (Vite+ + TS)"
+    }
+  ]
+}
