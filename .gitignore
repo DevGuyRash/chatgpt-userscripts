@@ -40,6 +40,10 @@ build/Release
 # Vite build output
 dist/
 
+# ChatGPT userscripts build artifacts
+release/
+served/
+
 # Dependency directories
 node_modules/
 jspm_packages/

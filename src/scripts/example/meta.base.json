@@ -1,0 +1,10 @@
+{
+  "id": "example",
+  "name": "Example Modular Userscript",
+  "namespace": "local-dev",
+  "version": "0.1.0",
+  "description": "Demonstrates modular userscript with shared lib (GMU).",
+  "match": ["https://example.com/*"],
+  "grant": ["GM_addStyle", "GM_setValue", "GM_getValue", "GM_xmlhttpRequest"],
+  "noframes": false
+}
