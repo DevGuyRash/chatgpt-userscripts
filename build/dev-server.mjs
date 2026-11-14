@@ -124,7 +124,14 @@ async function buildAll({ watch } = { watch: true }) {
 
 function serve() {
   const server = http.createServer((req, res) => {
-    const url = new URL(req.url || '/', `http://127.0.0.1:${PORT}`);
+    let url;
+    try {
+      url = new URL(req.url || '/', `http://127.0.0.1:${PORT}`);
+    } catch {
+      res.writeHead(400, { 'Content-Type': 'text/plain; charset=utf-8' });
+      res.end('Bad request URL');
+      return;
+    }
     const pathname = url.pathname;
 
     // Serve dist
