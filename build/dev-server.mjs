@@ -21,8 +21,17 @@ function ensureDir(p) {
   fs.mkdirSync(p, { recursive: true });
 }
 
+class MetadataError extends Error {}
+
 function readJson(p) {
-  return JSON.parse(fs.readFileSync(p, 'utf8'));
+  try {
+    return JSON.parse(fs.readFileSync(p, 'utf8'));
+  } catch (error) {
+    if (error instanceof SyntaxError || ['ENOENT', 'EACCES', 'EPERM', 'EISDIR', 'ENOTDIR'].includes(error.code)) {
+      throw new MetadataError(`Cannot read userscript metadata ${p}: ${error.message}`, { cause: error });
+    }
+    throw error;
+  }
 }
 
 function listScriptDirs() {
@@ -38,7 +47,12 @@ function discoverScripts() {
     const metaPath = path.join(SCRIPTS_DIR, dir, 'meta.base.json');
     const entry = path.join(SCRIPTS_DIR, dir, 'main.ts');
     const meta = readJson(metaPath);
-    if (!meta.id) throw new Error(`meta.base.json in ${dir} must include an "id"`);
+    if (!meta?.id) throw new MetadataError(`meta.base.json in ${dir} must include an "id"`);
+    for (const field of ['match', 'include', 'exclude', 'grant']) {
+      if (meta[field] != null && !Array.isArray(meta[field])) {
+        throw new MetadataError(`meta.base.json in ${dir}: "${field}" must be an array`);
+      }
+    }
     return { id: meta.id, dir, meta, entry };
   });
 }
@@ -156,7 +170,19 @@ function serve() {
     // On-demand wrapper
     if (pathname.startsWith('/userscripts/') && pathname.endsWith('.user.js')) {
       const id = path.basename(pathname).replace(/\.user\.js$/, '');
-      const scripts = discoverScripts();
+      let scripts;
+      try {
+        scripts = discoverScripts();
+      } catch (error) {
+        if (!(error instanceof MetadataError)) throw error;
+        console.error(error.message);
+        res.writeHead(503, {
+          'Content-Type': 'text/plain; charset=utf-8',
+          'Cache-Control': 'no-store',
+        });
+        res.end('Userscript metadata is unavailable. Fix meta.base.json (see server log) and retry.');
+        return;
+      }
       const target = scripts.find((s) => s.id === id);
       if (!target) {
         res.writeHead(404, { 'Content-Type': 'text/plain; charset=utf-8' });
